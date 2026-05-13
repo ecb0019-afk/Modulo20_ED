@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Code Project - Presentation</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #1e1e1e;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            background: #2d2d2d;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            animation: fadein 0.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #61dafb;
+            font-size: 2.2em;
+            text-align: center;
+            margin: 0 0 12px 0;
+        }
+
+        h2 {
+            color: #e67e22;
+            font-size: 1.6em;
+            text-align: center;
+            margin: 6px 0 12px 0;
+        }
+
+        .content {
+            display: flex;
+            gap: 20px;
+            flex: 1 1 auto;
+            min-height: 0;
+            flex-wrap: wrap;
+        }
+
+        .code-box {
+            flex: 1 1 45%;
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 18px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            position: relative;
+            min-width: 280px;
+        }
+
+        .code-box.bad {
+            border-top: 5px solid #e74c3c;
+        }
+
+        .code-box.good {
+            border-top: 5px solid #2ecc71;
+        }
+
+        .box-title {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            font-weight: bold;
+            border-bottom-left-radius: 8px;
+        }
+
+        pre {
+            margin: 0;
+            padding-top: 15px;
+        }
+
+        .controls {
+            margin: 20px auto 0 auto;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        button {
+            background: #61dafb;
+            color: #1e1e1e;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #4fa8c7;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="slide1" class="slide active">
+        <h1>The Clean Code & Automation Cycle</h1>
+        <h2>Final Project - English</h2>
+        <p style="text-align: center; font-size: 1.05em; color: #ccc; margin-top: 6px;">Identifying, explaining, and refactoring 10 Code Smells.</p>
+    </div>
+
+    <div id="slide2" class="slide">
+        <h2>1. Switch Statements (OO Abuser)</h2>
+        <div class="content">
+            <div class="code-box bad">
+                <div class="box-title" style="color: #e74c3c">BEFORE</div>
+                <pre style="color: #e8a9af">
+public double calculateDiscount(String type) {
+    switch (type) {
+        case "student": return price * 0.90;
+        case "senior": return price * 0.85;
+        // ... modifications here violate O/C principle
+    }
+}</pre>
+            </div>
+            <div class="code-box good">
+                <div class="box-title" style="color: #2ecc71">AFTER</div>
+                <pre style="color: #a9e8b9">
+// Strategy Pattern
+public interface DiscountStrategy {
+    double applyDiscount(double basePrice);
+}
+
+// StudentDiscount.java
+public class StudentDiscount implements DiscountStrategy {
+    public double applyDiscount(double price) {
+        return price * 0.90;
+    }
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <div id="slide3" class="slide">
+        <h2>2. Feature Envy (Coupler)</h2>
+        <div class="content">
+            <div class="code-box bad">
+                <div class="box-title" style="color: #e74c3c">BEFORE</div>
+                <pre style="color: #e8a9af">
+// In OrderService.java
+public double calculateValue(Book book) {
+    // Service obsesses over Book's data!
+    return (book.getBasePrice() * book.getMultiplier()) 
+           - book.getDamagePenalty();
+}</pre>
+            </div>
+            <div class="code-box good">
+                <div class="box-title" style="color: #2ecc71">AFTER</div>
+                <pre style="color: #a9e8b9">
+// In Book.java (Data owners perform their own logic)
+public double calculateCurrentValue() {
+    return (this.basePrice * this.multiplier) 
+           - this.damagePenalty;
+}
+
+// In OrderService.java
+currentTotal += book.calculateCurrentValue();
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="prevSlide()">Previous</button>
+        <button onclick="nextSlide()">Next &raquo;</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 3;
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                document.getElementById('slide' + currentSlide).classList.remove('active');
+                currentSlide++;
+                document.getElementById('slide' + currentSlide).classList.add('active');
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                document.getElementById('slide' + currentSlide).classList.remove('active');
+                currentSlide--;
+                document.getElementById('slide' + currentSlide).classList.add('active');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
